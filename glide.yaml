@@ -1,0 +1,18 @@
+package: github.com/daiguadaidai/pilipala
+import:
+- package: github.com/cihub/seelog
+  version: ~2.6.0
+- package: github.com/gin-gonic/gin
+  version: ~1.3.0
+- package: github.com/go-sql-driver/mysql
+  version: ~1.4.0
+- package: github.com/jinzhu/gorm
+  version: ~1.9.1
+- package: github.com/spf13/cobra
+  version: ~0.0.3
+- package: github.com/liudng/godump
+- package: google.golang.org/appengine
+  repo: https://github.com/golang/appengine
+  vcs: git
+  subpackages:
+  - cloudsql
