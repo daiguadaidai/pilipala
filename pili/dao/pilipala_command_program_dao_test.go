@@ -6,8 +6,7 @@ import (
 	"github.com/liudng/godump"
 	"github.com/daiguadaidai/pilipala/pili/config"
 	"github.com/daiguadaidai/pilipala/pili/model"
-	"database/sql"
-	"github.com/daiguadaidai/pilipala/common/sql_type_util"
+	"github.com/daiguadaidai/pilipala/common/types"
 )
 
 func InitDBConfig() {
@@ -38,10 +37,10 @@ func TestPilipalaCommandProgramDao_Create(t *testing.T) {
 	InitDBConfig()
 
 	pilipalaCommandProgram := &model.PilipalaCommandProgram {
-		Title: sql_type_util.NullString{sql.NullString{"测试1", true}},
-		FileName: sql_type_util.NullString{sql.NullString{"test1.py", true}},
-		Params: sql_type_util.NullString{sql.NullString{"--host=0.0.0.0 --port=3306", true}},
-		HaveDedicate: sql_type_util.NullInt64{sql.NullInt64{1, true}},
+		Title:        types.GetNullString("测试3"),
+		FileName:     types.GetNullString("test3.py"),
+		Params:       types.GetNullString("--host=0.0.0.0 --port=3306"),
+		HaveDedicate: types.GetNullInt64(1),
 	}
 
 	pilipalaCommandProgramDao := new(PilipalaCommandProgramDao)
@@ -51,7 +50,7 @@ func TestPilipalaCommandProgramDao_Create(t *testing.T) {
 		return
 	}
 
-	seelog.Info("创建成功")
+	seelog.Info("创建成功", pilipalaCommandProgram.Id.Int64)
 }
 
 func TestPilipalaCommandProgramDao_GetByID(t *testing.T) {

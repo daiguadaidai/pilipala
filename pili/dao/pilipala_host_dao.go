@@ -1,9 +1,10 @@
 package dao
 
 import (
+	"github.com/daiguadaidai/pilipala/common/types"
+	"github.com/daiguadaidai/pilipala/pili/gdbc"
 	"github.com/daiguadaidai/pilipala/pili/model"
 	"github.com/jinzhu/gorm"
-	"github.com/daiguadaidai/pilipala/pili/gdbc"
 )
 
 type PilipalaHostDao struct{}
@@ -44,13 +45,13 @@ func (this *PilipalaHostDao) GetByID(
 // 获取所有的IP
 func (this *PilipalaHostDao) FindAll(
 	_columnStr string,
-	_isDadicate int,
+	_where interface{},
 ) ([]model.PilipalaHost, error) {
 	ormInstance := gdbc.GetOrmInstance()
 
 	pilipalaHosts := []model.PilipalaHost{}
 	err := ormInstance.DB.Select(_columnStr).
-		Where("is_dedicate = ?", _isDadicate).
+		Where(_where).
 		Find(&pilipalaHosts).Error
 	if err != nil {
 		return pilipalaHosts, err
@@ -97,4 +98,67 @@ func (this *PilipalaHostDao) PaginationFind(
 	}
 
 	return pilipalaHosts, nil
+}
+
+// 获取优的host
+func (this *PilipalaHostDao) GetOptimalHost(
+	_columnStr,
+	_where interface{},
+	_ids []int64,
+) (*model.PilipalaHost, error) {
+	ormInstance := gdbc.GetOrmInstance()
+
+	pilipalaHost := new(model.PilipalaHost)
+	err := ormInstance.DB.Select(_columnStr).
+		Where(_ids).Where(_where).
+		Order("running_task_count ASC").
+		First(pilipalaHost).Error
+	if err != nil {
+		return pilipalaHost, err
+	}
+
+	return pilipalaHost, nil
+}
+
+// 任务数自增1
+func (this *PilipalaHostDao) IncrTaskByHost(_host string) error {
+	ormInstance := gdbc.GetOrmInstance()
+
+	if err := ormInstance.DB.Model(&model.PilipalaHost{}).Where("host = ?", _host).
+		Update("running_task_count", gorm.Expr("running_task_count + ?", 1)).
+		Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 任务数自减1
+func (this *PilipalaHostDao) DecrTaskByHost(_host string) error {
+	ormInstance := gdbc.GetOrmInstance()
+
+	if err := ormInstance.DB.Model(&model.PilipalaHost{}).Where("host = ?", _host).
+		Update("running_task_count", gorm.Expr("running_task_count - ?", 1)).
+		Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 任务数自减1
+func (this *PilipalaHostDao) UpdateIsValidByHost(_host string, _isValid int64) error {
+	ormInstance := gdbc.GetOrmInstance()
+
+	host := new(model.PilipalaHost)
+	ormInstance.DB.Model(&model.PilipalaHost{}).Where("host = ?", _host).First(host)
+
+	host.Host = types.GetNullString(_host)
+	host.IsValid = types.GetNullInt64(_isValid)
+
+	if err := ormInstance.DB.Save(host).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

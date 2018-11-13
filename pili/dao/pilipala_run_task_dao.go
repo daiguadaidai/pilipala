@@ -1,9 +1,9 @@
 package dao
 
 import (
+	"github.com/daiguadaidai/pilipala/pili/gdbc"
 	"github.com/daiguadaidai/pilipala/pili/model"
 	"github.com/jinzhu/gorm"
-	"github.com/daiguadaidai/pilipala/pili/gdbc"
 )
 
 type PilipalaRunTaskDao struct{}
@@ -56,6 +56,32 @@ func (this *PilipalaRunTaskDao) Create(_pilipalaRunTask *model.PilipalaRunTask) 
 
 	err := ormInstance.DB.Create(_pilipalaRunTask).Error
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 更新任务状态
+func (this *PilipalaRunTaskDao) UpdateTaskStatus(_uuid string, _status int64) error {
+	ormInstance := gdbc.GetOrmInstance()
+
+	if err := ormInstance.DB.Model(&model.PilipalaRunTask{}).
+		Where("task_uuid = ?", _uuid).
+		Update("status", _status).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 更新任务状态
+func (this *PilipalaRunTaskDao) UpdateByUUID(task *model.PilipalaRunTask) error {
+	ormInstance := gdbc.GetOrmInstance()
+
+	if err := ormInstance.DB.Model(&model.PilipalaRunTask{}).
+		Where("task_uuid = ?", task.TaskUUID.String).
+		Update(task).Error; err != nil {
 		return err
 	}
 

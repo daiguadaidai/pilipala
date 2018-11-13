@@ -1,16 +1,19 @@
 package config
 
 import (
-	"github.com/daiguadaidai/pilipala/common"
 	"fmt"
+	"github.com/daiguadaidai/pilipala/common"
 )
 
 const (
 	LISTEN_HOST = "0.0.0.0"
 	LISTEN_PORT = 19528
 
-	COMMAND_PATH = "./pili_commands"
+	COMMAND_PATH        = "./pili_commands"
 	UPLOAD_COMMAND_PATH = "./pili_upload_commands"
+
+	PALA_TASK_RUN_URL      = "http://%s:19529/pala/tasks/start"
+	PALA_TASK_TAIL_LOG_URL = "http://%s:19529/pala/tasks/tail"
 )
 
 var piliStartConfig *PiliStartConfig
@@ -19,7 +22,7 @@ type PiliStartConfig struct {
 	ListenHost string // 启动服务绑定的IP
 	ListenPort int    // 启动服务绑定的端口
 
-	CommandPath string // 命令存放的路径
+	CommandPath       string // 命令存放的路径
 	UploadCommandPath string // 上传命令临时使用目录
 }
 
@@ -70,4 +73,9 @@ func (this *PiliStartConfig) PiliAddress() string {
 // 上传文件临时存放路径
 func (this *PiliStartConfig) UploadCommandFilePath(_fileName string) string {
 	return fmt.Sprintf("%v/%v", this.UploadCommandPath, _fileName)
+}
+
+// 命令文件存放位置
+func (this *PiliStartConfig) CommandFilePath(_fileName string) string {
+	return fmt.Sprintf("%v/%v", this.CommandPath, _fileName)
 }

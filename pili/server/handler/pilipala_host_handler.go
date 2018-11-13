@@ -1,28 +1,26 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/daiguadaidai/pilipala/pili/dao"
-	"github.com/daiguadaidai/pilipala/pili/server/message"
 	"fmt"
 	"github.com/cihub/seelog"
-	"strconv"
+	"github.com/daiguadaidai/pilipala/pili/dao"
+	"github.com/daiguadaidai/pilipala/pili/server/message"
+	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
-type PilipalaHostHandler struct {}
-
-func (this *PilipalaHostHandler) Create(_c *gin.Context) {
+func (this *PilipalaHostHandler) Register(_router *gin.Engine) {
+	_router.GET("/pili/hosts", this.List)
+	_router.GET("/pili/hosts/heartbeat/:host", this.Heartbeat)
 }
 
-func (this *PilipalaHostHandler) Delete(_c *gin.Context) {
+func init() {
+	handler := new(PilipalaHostHandler)
+	AddHandler(handler)
 }
 
-func (this *PilipalaHostHandler) Update(_c *gin.Context) {
-}
-
-func (this *PilipalaHostHandler) PartialUpdate(_c *gin.Context) {
-}
+type PilipalaHostHandler struct{}
 
 func (this *PilipalaHostHandler) List(_c *gin.Context) {
 	minPK := _c.DefaultQuery("min_pk", "")
@@ -76,45 +74,25 @@ func (this *PilipalaHostHandler) List(_c *gin.Context) {
 	_c.JSON(http.StatusOK, res)
 }
 
-func (this *PilipalaHostHandler) ListAll(_c *gin.Context) {
-	columnStr := _c.DefaultQuery("columnStr", "*")
-	isDedicate := _c.DefaultQuery("isDedicate", "0")
-	// 是否是专用机器
-	isDedicateInt, err := strconv.Atoi(isDedicate)
-	if err != nil {
-		isDedicateInt = 0
-	}
-
+// 接收心跳
+func (this *PilipalaHostHandler) Heartbeat(_c *gin.Context) {
 	res := message.NewResponseMessage()
 
-	pilipalaHostDao := new(dao.PilipalaHostDao)
-
-	items, err := pilipalaHostDao.FindAll(columnStr, isDedicateInt)
-	if err != nil {
+	host := _c.Param("host")
+	if host == "" {
 		res.Code = 30000
-		res.Message = fmt.Sprintf("获取数据失败. %v", err)
-		seelog.Error(res.Message)
+		res.Message = "请输入正确的host"
+		_c.JSON(http.StatusOK, res)
+		return
 	}
-	res.Data["items"] = items
+
+	d := new(dao.PilipalaHostDao)
+	if err := d.UpdateIsValidByHost(host, 1); err != nil {
+		res.Code = 30000
+		res.Message = fmt.Sprintf("更新%s心跳失败. %v", host, err)
+		_c.JSON(http.StatusOK, res)
+		return
+	}
 
 	_c.JSON(http.StatusOK, res)
-}
-
-
-func (this *PilipalaHostHandler) Retrieve(_c *gin.Context) {
-}
-
-func (this *PilipalaHostHandler) Register(_router *gin.Engine) {
-	_router.POST("/pilipala_host", this.Create)
-	_router.DELETE("/pilipala_host/:pk", this.Delete)
-	_router.PUT("/pilipala_host/:pk", this.Update)
-	_router.PATCH("/pilipala_host/:pk", this.PartialUpdate)
-	_router.GET("/pilipala_host", this.List)
-	_router.GET("/pilipala_host/:pk", this.Retrieve)
-	_router.GET("/pilipala_host_all", this.ListAll)
-}
-
-func init() {
-	handler := new(PilipalaHostHandler)
-	AddHandler(handler)
 }

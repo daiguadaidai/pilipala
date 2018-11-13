@@ -1,10 +1,12 @@
 package service
 
 import (
-	"github.com/daiguadaidai/pilipala/pala/config"
 	"github.com/cihub/seelog"
+	"github.com/daiguadaidai/pilipala/pala/config"
+	"github.com/daiguadaidai/pilipala/pala/server/api"
+	"github.com/daiguadaidai/pilipala/pala/server/heartbeat"
+	"github.com/daiguadaidai/pilipala/pala/server/task"
 	"sync"
-	"github.com/daiguadaidai/pilipala/pala/server"
 )
 
 func Start(_palaStartConfig *config.PalaStartConfig) {
@@ -25,7 +27,11 @@ func Start(_palaStartConfig *config.PalaStartConfig) {
 
 	// 启动palaserver
 	wg.Add(1)
-	go server.StartHttpServer(wg)
+	go api.StartHttpServer(wg)
+	wg.Add(1)
+	go task.StartTaskServer(wg)
+	wg.Add(1)
+	go heartbeat.Start(wg)
 
 	wg.Wait()
 }

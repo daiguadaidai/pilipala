@@ -1,10 +1,10 @@
 package common
 
 import (
-	"os"
-	"path/filepath"
 	"fmt"
 	"github.com/cihub/seelog"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -42,15 +42,12 @@ func CreateDir(_path string) error {
 Params:
     _path: 路径
     _pathUsage: 是做什么用的
- */
+*/
 func CheckAndCreatePath(_path string, _pathUsage string) error {
 	if exists, err := PathExists(_path); err != nil {
 		return fmt.Errorf("%v, 检测失败. %v", _pathUsage, err)
 	} else {
-		if exists {
-			seelog.Infof("%v, 已经存在: %s(%s)",
-				_pathUsage, _path, AbsPath(_path))
-		} else { // 不存在需要创建目录
+		if !exists {
 			seelog.Warnf("%v, 不存在: %s(%s)",
 				_pathUsage, _path, AbsPath(_path))
 
@@ -73,4 +70,26 @@ func CreateUUIDFileName() string {
 	fileName := fmt.Sprintf("%v", t.Format("20060102150405123456"))
 
 	return fileName
+}
+
+func ChmodFile(_path string) error {
+	return os.Chmod(_path, os.ModePerm)
+}
+
+// 判断文件是否可执行
+func FileIsExecutable(_path string) (bool, error) {
+	fileInfo, err := os.Stat(_path)
+	if err != nil {
+		return false, err
+	}
+
+	mode := fileInfo.Mode()
+	perm := mode.Perm()
+	flag := perm & os.FileMode(73)
+
+	if uint32(flag) == uint32(73) {
+		return true, nil
+	}
+
+	return false, nil
 }
