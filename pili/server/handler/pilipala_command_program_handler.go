@@ -1,20 +1,20 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/daiguadaidai/pilipala/pili/dao"
-	"github.com/daiguadaidai/pilipala/pili/server/message"
 	"fmt"
 	"github.com/cihub/seelog"
-	"strconv"
-	"net/http"
-	"github.com/daiguadaidai/pilipala/pili/config"
 	"github.com/daiguadaidai/pilipala/common"
-	"github.com/daiguadaidai/pilipala/pili/server/form"
-	"github.com/daiguadaidai/pilipala/pili/model"
 	"github.com/daiguadaidai/pilipala/common/types"
-	"os"
+	"github.com/daiguadaidai/pilipala/pili/config"
+	"github.com/daiguadaidai/pilipala/pili/dao"
+	"github.com/daiguadaidai/pilipala/pili/model"
+	"github.com/daiguadaidai/pilipala/pili/server/form"
+	"github.com/daiguadaidai/pilipala/pili/server/message"
 	"github.com/deckarep/golang-set"
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -25,15 +25,15 @@ func init() {
 
 // 注册route
 func (this *PilipalaCommandProgramHandler) Register(_router *gin.Engine) {
-	_router.GET("/pili/command_program", this.List)
-	_router.POST("/pili/command_program", this.Create)
-	_router.PUT("/pili/command_program", this.Update)
-	_router.POST("/pili/command_program/upload_create_command", this.UploadCreateCommand)
-	_router.POST("/pili/command_program/upload_edit_command", this.UploadEditCommand)
-	_router.GET("/pili/command_program/download/:command", this.Download)
+	_router.GET("/pili/command_programs", this.List)
+	_router.POST("/pili/command_programs", this.Create)
+	_router.PUT("/pili/command_programs", this.Update)
+	_router.POST("/pili/command_programs/upload_create_command", this.UploadCreateCommand)
+	_router.POST("/pili/command_programs/upload_edit_command", this.UploadEditCommand)
+	_router.GET("/pili/command_programs/download/:command", this.Download)
 }
 
-type PilipalaCommandProgramHandler struct {}
+type PilipalaCommandProgramHandler struct{}
 
 func (this *PilipalaCommandProgramHandler) List(_c *gin.Context) {
 	minPK := _c.DefaultQuery("min_pk", "")
@@ -220,8 +220,6 @@ func (this *PilipalaCommandProgramHandler) Update(_c *gin.Context) {
 	_c.JSON(http.StatusOK, res)
 }
 
-
-
 // 上传命令创建命令
 func (this *PilipalaCommandProgramHandler) UploadCreateCommand(_c *gin.Context) {
 	res := message.NewResponseMessage()
@@ -341,7 +339,7 @@ func (this *PilipalaCommandProgramHandler) Download(_c *gin.Context) {
 	pilipalaConfig := config.GetPiliStartConfig()
 	fileNamePath := pilipalaConfig.CommandFilePath(fileName)
 	if exists, _ := common.PathExists(fileNamePath); !exists {
-		errMSG := fmt.Sprintf("命令文件不存在 %v",fileNamePath)
+		errMSG := fmt.Sprintf("命令文件不存在 %v", fileNamePath)
 		seelog.Error(errMSG)
 		_c.String(http.StatusForbidden, errMSG)
 		return
@@ -349,7 +347,7 @@ func (this *PilipalaCommandProgramHandler) Download(_c *gin.Context) {
 
 	_c.Header("Content-Description", "File Transfer")
 	_c.Header("Content-Transfer-Encoding", "binary")
-	_c.Header("Content-Disposition", "attachment; filename=" + fileName )
+	_c.Header("Content-Disposition", "attachment; filename="+fileName)
 	_c.Header("Content-Type", "application/octet-stream")
 	_c.File(fileNamePath)
 }
@@ -358,7 +356,7 @@ func (this *PilipalaCommandProgramHandler) Download(_c *gin.Context) {
 Return:
 	1. 需要添加的host
     2. 需要删除的host
- */
+*/
 func (this *PilipalaCommandProgramHandler) GetNeedAddDeleteHostIds(
 	_pilipalaCommandHosts []model.PilipalaCommandHost,
 	_hostIds []int64,

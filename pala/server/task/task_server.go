@@ -174,7 +174,7 @@ func (t *Task) CheckAndDownloadCommand() error {
 	if !exists {
 		seelog.Warnf("命令不存在: %s", t.Command)
 		if err1 := common.DownloadFile(t.Config.PiliDownloadCommandUrl(t.Command), commandPath); err1 != nil {
-			return err1
+			return fmt.Errorf("%v. %s", err1, t.Config.PiliDownloadCommandUrl(t.Command))
 		}
 		seelog.Warnf("命令下载成功: %s", t.Command)
 	}

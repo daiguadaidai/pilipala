@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"github.com/daiguadaidai/pilipala/common/types"
 	"github.com/daiguadaidai/pilipala/pili/gdbc"
 	"github.com/daiguadaidai/pilipala/pili/model"
 	"github.com/jinzhu/gorm"
@@ -153,10 +152,8 @@ func (this *PilipalaHostDao) UpdateIsValidByHost(_host string, _isValid int64) e
 	host := new(model.PilipalaHost)
 	ormInstance.DB.Model(&model.PilipalaHost{}).Where("host = ?", _host).First(host)
 
-	host.Host = types.GetNullString(_host)
-	host.IsValid = types.GetNullInt64(_isValid)
-
-	if err := ormInstance.DB.Save(host).Error; err != nil {
+	if err := ormInstance.DB.Model(&model.PilipalaHost{}).Where("host = ?", _host).
+		Update("is_valid", _isValid).Error; err != nil {
 		return err
 	}
 

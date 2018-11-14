@@ -1,15 +1,15 @@
 package server
 
 import (
-	"net/http"
-	"github.com/cihub/seelog"
-	"sync"
-	"github.com/daiguadaidai/pilipala/pili/config"
-	"github.com/gin-gonic/gin"
-	"github.com/daiguadaidai/pilipala/pili/server/handler"
-	"time"
-	"strings"
 	"fmt"
+	"github.com/cihub/seelog"
+	"github.com/daiguadaidai/pilipala/pili/config"
+	"github.com/daiguadaidai/pilipala/pili/server/handler"
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"strings"
+	"sync"
+	"time"
 )
 
 func StartHttpServer(_wg *sync.WaitGroup) {
@@ -40,9 +40,9 @@ func StartHttpServer(_wg *sync.WaitGroup) {
 // 跨域
 func Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		method := c.Request.Method  //请求方法
-		origin := c.Request.Header.Get("Origin")  //请求头部
-		var headerKeys []string  // 声明请求头keys
+		method := c.Request.Method               //请求方法
+		origin := c.Request.Header.Get("Origin") //请求头部
+		var headerKeys []string                  // 声明请求头keys
 		for k, _ := range c.Request.Header {
 			headerKeys = append(headerKeys, k)
 		}
@@ -80,4 +80,3 @@ func Cors() gin.HandlerFunc {
 		c.Next() // 处理请求
 	}
 }
-

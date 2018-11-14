@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	UUID_LEN = 24
+	UUID_LEN      = 30
+	UUID_TIME_LEN = 24
 )
 
 // 获取唯一自增ID
@@ -17,10 +18,14 @@ func GetUUID() string {
 	t := time.Now()
 	uuid := t.Format("20060102150405123456")
 	currUUIDLen := len(uuid)
-	for i := 0; i < UUID_LEN-currUUIDLen; i++ {
+	for i := 0; i < UUID_TIME_LEN-currUUIDLen; i++ {
 		uuid += "0"
 	}
-	return fmt.Sprintf("%s%s", uuid, RandString(6))
+	randLen := 6
+	if currUUIDLen > UUID_TIME_LEN {
+		randLen = UUID_LEN - currUUIDLen
+	}
+	return fmt.Sprintf("%s%s", uuid, RandString(randLen))
 }
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
